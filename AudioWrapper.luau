@@ -6,8 +6,7 @@ local Players = game:GetService("Players")
 local WrapperCache = require(script.Parent.Cache.WrapperCache)
 local SoundsList = require(script.Parent.Dictionaries.Sounds)
 
-local ClientSignal_PlaySound = ReplicatedStorage.Game.Signals.Audio:WaitForChild("ClientSignal_PlaySound[AudioAPI]")
-
+local ClientSignal_PlaySound -- put your remote event here
 local AudioWrapper = {}
 AudioWrapper.__index = AudioWrapper
 
