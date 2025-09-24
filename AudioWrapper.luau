@@ -1,10 +1,12 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local SoundService = game:GetService("SoundService")
 local HttpService = game:GetService("HttpService")
-local WrapperCache = require(script.Parent.Cache.WrapperCache)
+local Players = game:GetService("Players")
 
+local WrapperCache = require(script.Parent.Cache.WrapperCache)
 local SoundsList = require(script.Parent.Dictionaries.Sounds)
-local ClientSignal_PlaySound -- ADD YOUR SIGNAL HERE
+
+local ClientSignal_PlaySound = ReplicatedStorage.Game.Signals.Audio:WaitForChild("ClientSignal_PlaySound[AudioAPI]")
 
 local AudioWrapper = {}
 AudioWrapper.__index = AudioWrapper
@@ -32,6 +34,20 @@ return function(mode, clientName)
 					print("[AudioWrapper][Client] StopSignal:", soundPath)
 				end
 				wrapper:_stopSound(soundPath)
+			end
+		end)
+
+		Players.PlayerRemoving:Connect(function(player)
+			if player.Name == clientName then
+				for path in pairs(wrapper.Sounds) do
+					wrapper:UnloadSound(path)
+				end
+
+				WrapperCache.CachedClients[clientName] = nil
+
+				if wrapper.Debug then
+					print("[AudioWrapper][Client] Cleaned up cache + sounds for:", clientName)
+				end
 			end
 		end)
 	end
