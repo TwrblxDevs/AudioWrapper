@@ -161,5 +161,25 @@ return function(mode, clientName)
 		end
 	end
 
+	function wrapper:SetParent(path, parent)
+		local sound = self.Sounds[path]
+		if not sound then
+			if self.Debug then
+				warn("[AudioWrapper] Tried to set parent for unloaded sound:", path)
+			end
+			return
+		end
+
+		if typeof(parent) ~= "Instance" then
+			error("[AudioWrapper] Parent must be a Roblox Instance")
+		end
+
+		sound.Parent = parent
+
+		if self.Debug then
+			print(string.format("[AudioWrapper] Sound '%s' parented to %s", path, parent:GetFullName()))
+		end
+	end
+
 	return wrapper
 end
