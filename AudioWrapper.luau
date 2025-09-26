@@ -36,6 +36,7 @@ return function(mode, clientName)
 			end
 		end)
 
+		-- Cleanup on client leave
 		Players.PlayerRemoving:Connect(function(player)
 			if player.Name == clientName then
 				for path in pairs(wrapper.Sounds) do
@@ -134,6 +135,49 @@ return function(mode, clientName)
 		end
 	end
 
+	-- Pause a sound
+	function wrapper:PauseSound(path)
+		local sound = self.Sounds[path]
+		if sound and sound.IsPlaying then
+			sound:Pause()
+			if self.Debug then
+				print("[AudioWrapper] Sound paused:", path)
+			end
+		end
+	end
+
+	-- Resume a sound
+	function wrapper:ResumeSound(path)
+		local sound = self.Sounds[path]
+		if sound and not sound.IsPlaying then
+			sound:Play()
+			if self.Debug then
+				print("[AudioWrapper] Sound resumed:", path)
+			end
+		end
+	end
+
+	-- Set a custom parent for a sound
+	function wrapper:SetParent(path, parent)
+		local sound = self.Sounds[path]
+		if not sound then
+			if self.Debug then
+				warn("[AudioWrapper] Tried to set parent for unloaded sound:", path)
+			end
+			return
+		end
+
+		if typeof(parent) ~= "Instance" then
+			error("[AudioWrapper] Parent must be a Roblox Instance")
+		end
+
+		sound.Parent = parent
+
+		if self.Debug then
+			print(string.format("[AudioWrapper] Sound '%s' parented to %s", path, parent:GetFullName()))
+		end
+	end
+
 	-- SERVER: Play sound for a player
 	function wrapper:PlaySound(player, path, properties)
 		if self.Mode ~= "Server" then
@@ -157,26 +201,6 @@ return function(mode, clientName)
 			if self.Debug then
 				print("[AudioWrapper][Server] StopSound sent to:", player.Name, path)
 			end
-		end
-	end
-
-	function wrapper:SetParent(path, parent)
-		local sound = self.Sounds[path]
-		if not sound then
-			if self.Debug then
-				warn("[AudioWrapper] Tried to set parent for unloaded sound:", path)
-			end
-			return
-		end
-
-		if typeof(parent) ~= "Instance" then
-			error("[AudioWrapper] Parent must be a Roblox Instance")
-		end
-
-		sound.Parent = parent
-
-		if self.Debug then
-			print(string.format("[AudioWrapper] Sound '%s' parented to %s", path, parent:GetFullName()))
 		end
 	end
 
